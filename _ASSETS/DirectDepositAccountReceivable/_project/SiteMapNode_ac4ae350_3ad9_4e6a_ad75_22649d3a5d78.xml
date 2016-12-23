@@ -1,0 +1,13 @@
+﻿<SiteMapNode>
+    <data-set>
+        <relations version="3" main-table="SiteMap" />
+        <layout>
+            <table name="SiteMap" />
+        </layout>
+        <data>
+            <SiteMap>
+                <row Position="1" Title="Prepare Payments" Url="~/Pages/AR/AR511000.aspx?paymentType=ddt" Expanded="0" IsFolder="0" ScreenID="AR511000" NodeID="ac4ae350-3ad9-4e6a-ad75-22649d3a5d78" ParentID="4ff2137b-aa2e-46a0-8721-92aef6eeeb98" />
+            </SiteMap>
+        </data>
+    </data-set>
+</SiteMapNode>

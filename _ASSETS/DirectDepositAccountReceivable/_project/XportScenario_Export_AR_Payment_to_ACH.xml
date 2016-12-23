@@ -1,0 +1,190 @@
+﻿<XportScenario>
+    <data-set>
+        <relations version="3" main-table="SYMapping">
+            <link from="SYMapping (ProviderID, NoteID)" to="SYProvider (ProviderID, NoteID)" type="ToMaster" />
+            <link from="SYProvider (NoteID)" to="Note (NoteID)" type="Note" />
+            <link from="SYProviderField (ProviderID)" to="SYProvider (ProviderID)" />
+            <link from="SYProviderField (NoteID)" to="Note (NoteID)" type="Note" />
+            <link from="SYProviderObject (ProviderID)" to="SYProvider (ProviderID)" />
+            <link from="SYProviderObject (NoteID)" to="Note (NoteID)" type="Note" />
+            <link from="SYProviderParameter (ProviderID)" to="SYProvider (ProviderID)" />
+            <link from="SYProviderParameter (NoteID)" to="Note (NoteID)" type="Note" />
+            <link from="SYMappingCondition (MappingID)" to="SYMapping (MappingID)" />
+            <link from="SYMappingCondition (NoteID)" to="Note (NoteID)" type="Note" />
+            <link from="SYMappingField (MappingID)" to="SYMapping (MappingID)" />
+            <link from="SYMappingField (NoteID)" to="Note (NoteID)" type="Note" />
+            <link from="SYImportCondition (MappingID)" to="SYMapping (MappingID)" />
+            <link from="SYImportCondition (NoteID)" to="Note (NoteID)" type="Note" />
+        </relations>
+        <layout>
+            <table name="SYMapping">
+                <table name="SYMappingCondition" uplink="(MappingID) = (MappingID)">
+                    <table name="Note" uplink="(NoteID) = (NoteID)" />
+                </table>
+                <table name="SYMappingField" uplink="(MappingID) = (MappingID)">
+                    <table name="Note" uplink="(NoteID) = (NoteID)" />
+                </table>
+                <table name="SYImportCondition" uplink="(MappingID) = (MappingID)">
+                    <table name="Note" uplink="(NoteID) = (NoteID)" />
+                </table>
+            </table>
+            <table name="SYProvider">
+                <table name="SYProviderField" uplink="(ProviderID) = (ProviderID)">
+                    <table name="Note" uplink="(NoteID) = (NoteID)" />
+                </table>
+                <table name="SYProviderObject" uplink="(ProviderID) = (ProviderID)">
+                    <table name="Note" uplink="(NoteID) = (NoteID)" />
+                </table>
+                <table name="SYProviderParameter" uplink="(ProviderID) = (ProviderID)">
+                    <table name="Note" uplink="(NoteID) = (NoteID)" />
+                </table>
+                <table name="Note" uplink="(NoteID) = (NoteID)" />
+            </table>
+        </layout>
+        <data>
+            <SYMapping>
+                <row MappingID="a6a296cf-6b22-4d4c-8cc9-a0e00071c608" Name="Export AR Payment to ACH" IsActive="1" ScreenID="AR305050" MappingType="E" GraphName="PX.Objects.ACH.ARBatchEntry" ViewName="Document" ProviderID="95d04d63-2276-4497-a2c2-9bd6166e7554" ProviderObject="CCD_Entry" SyncType="F" Status="F" FieldCntr="2112" FieldOrderCntr="0" ImportConditionCntr="0" ConditionCntr="0" DataCntr="1" NbrRecords="1" PreparedOn="2016-01-22 08:35:03.66" ExportTimeStamp="2016-01-22 03:35:03" DiscardResult="0" NoteID="a9b43238-acc0-e511-9bf5-001c42bdd630">
+                    <SYMappingField LineNbr="32" OrderNumber="3" IsActive="1" IsVisible="1" ObjectName="Document" FieldName="BatchNbr" Value="=Provider.GetBatchNbr()" NeedCommit="1" IgnoreError="0" />
+                    <SYMappingField LineNbr="64" OrderNumber="1" IsActive="1" IsVisible="0" ParentLineNbr="32" ObjectName="Document" FieldName="@@BatchNbr" Value="=[Document.BatchNbr]" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="96" OrderNumber="2" IsActive="1" IsVisible="0" ParentLineNbr="32" ObjectName="Document" FieldName="&lt;Cancel&gt;" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="128" OrderNumber="4" IsActive="0" IsVisible="1" ObjectName="Selection" FieldName="Payment Type ID" Value="='FEDWIRE'" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="160" OrderNumber="5" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=Provider.FormatDate(Today())" Value="FH_FileCreationDate" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="192" OrderNumber="6" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=Format( '{0:HHmm}',  Now())" Value="FH_FileCreationTime" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="224" OrderNumber="7" IsActive="1" IsVisible="1" ObjectName="cashAccountSettings" FieldName="@CashAccountPaymentMethodDetail.detailID" Value="='3'" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="256" OrderNumber="8" IsActive="1" IsVisible="1" ObjectName="cashAccountSettings" FieldName="=' '+Provider.FormatBankRN([cashAccountSettings.DetailValue],0)" Value="FH_ImmediateOrigin" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="288" OrderNumber="9" IsActive="1" IsVisible="1" ObjectName="cashAccountSettings" FieldName="=' '+ [cashAccountSettings.DetailValue]" Value="FH_ImmediateDestination" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="320" OrderNumber="10" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=Provider.FormatBankRN([cashAccountSettings.DetailValue],1)" Value="BH_OriginatingDFI_ID" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="352" OrderNumber="11" IsActive="1" IsVisible="1" ObjectName="cashAccountSettings" FieldName="@CashAccountPaymentMethodDetail.detailID" Value="='2'" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="384" OrderNumber="12" IsActive="1" IsVisible="1" ObjectName="cashAccountSettings" FieldName="DetailValue" Value="FH_ImmediateOriginName" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="416" OrderNumber="13" IsActive="1" IsVisible="1" ObjectName="cashAccountSettings" FieldName="@CashAccountPaymentMethodDetail.detailID" Value="='4'" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="448" OrderNumber="14" IsActive="1" IsVisible="1" ObjectName="cashAccountSettings" FieldName="DetailValue" Value="FH_ImmediateDestinationName" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="480" OrderNumber="15" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="='1'" Value="FH_RecordTypeCode" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="512" OrderNumber="16" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="='01'" Value="FH_PriorityCode" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="544" OrderNumber="17" IsActive="1" IsVisible="1" ObjectName="Document" FieldName="=Provider.FormatFileIDModifier([Document.DateSeqNbr])" Value="FH_FileIDModifier" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="576" OrderNumber="18" IsActive="1" IsVisible="1" ObjectName="Document" FieldName="=[Document.NoteID]" Value="NoteID" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="608" OrderNumber="19" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="='1'" Value="FH_FormatCode" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="640" OrderNumber="20" IsActive="1" IsVisible="1" ObjectName="Document" FieldName="=Right([Document.BatchNbr],8)" Value="FH_ReferenceCode" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="672" OrderNumber="21" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="='9'" Value="FCR_RecordTypeCode" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="704" OrderNumber="22" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=Provider.FormatAmount12([ARPaymentList.CuryOrigDocAmt])" Value="FCR_TotalCreditEntry" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="736" OrderNumber="23" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=Provider.FormatAmount12(0.0)" Value="FCR_TotalDebitEntry" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="768" OrderNumber="24" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="='6'" Value="CCD_RecordTypeCode" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="800" OrderNumber="25" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="='22'" Value="CCD_TransactionCode" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="832" OrderNumber="26" IsActive="1" IsVisible="1" ObjectName="customerPaymentSettings" FieldName="@CustomerPaymentMethodDetail.detailID" Value="='3'" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="864" OrderNumber="27" IsActive="1" IsVisible="1" ObjectName="customerPaymentSettings" FieldName="=Provider.FormatBankRN([customerPaymentSettings.Value],1)" Value="CCD_ReceivingDFI_ID" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="896" OrderNumber="28" IsActive="1" IsVisible="1" ObjectName="customerPaymentSettings" FieldName="@CustomerPaymentMethodDetail.detailID" Value="='1'" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="928" OrderNumber="29" IsActive="1" IsVisible="1" ObjectName="customerPaymentSettings" FieldName="Value" Value="CCD_DFIAccountNumber" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="960" OrderNumber="30" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=Provider.FormatBankRN([CCD_ReceivingDFI_ID],2)" Value="CCD_CheckDigit" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="992" OrderNumber="31" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=Provider.FormatAmount10([ARPaymentList.CuryOrigDocAmt])" Value="CCD_Amount" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1024" OrderNumber="32" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=Left(Provider.Coalesce([ARPaymentList.ExtRefNbr],[ARPaymentList.RefNbr]),10)" Value="CCD_IdentificationNumber" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1056" OrderNumber="33" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="='0'" Value="CCD_AddendaRecordIndicator" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1088" OrderNumber="34" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=Provider.GetNextEntryNbr([BH_OriginatingDFI_ID])" Value="CCD_TraceNumber" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1120" OrderNumber="35" IsActive="1" IsVisible="1" ObjectName="customerPaymentSettings" FieldName="@CustomerPaymentMethodDetail.detailID" Value="='2'" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1152" OrderNumber="36" IsActive="1" IsVisible="1" ObjectName="customerPaymentSettings" FieldName="Value" Value="CCD_ReceivingCompanyName" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1184" OrderNumber="37" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="='5'" Value="BH_RecordTypeCode" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1216" OrderNumber="38" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="='220'" Value="BH_ServiceClassCode" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1248" OrderNumber="39" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=Left([FH_ImmediateOriginName],16)" Value="BH_CompanyName" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1280" OrderNumber="40" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=''" Value="BH_CompanyDiscretionaryData" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1312" OrderNumber="41" IsActive="1" IsVisible="1" ObjectName="cashAccountSettings" FieldName="@CashAccountPaymentMethodDetail.detailID" Value="='5'" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1344" OrderNumber="42" IsActive="1" IsVisible="1" ObjectName="cashAccountSettings" FieldName="Value" Value="BH_CompanyIdentification" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1376" OrderNumber="43" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=Provider.AddToHash('BacthHash',[CCD_ReceivingDFI_ID])" Value="FCR_EntryHash" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1408" OrderNumber="44" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="='CCD'" Value="BH_EntryClassCode" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1440" OrderNumber="45" IsActive="1" IsVisible="1" ObjectName="Document" FieldName="=IIf( len([Document.Description])&gt;0, Left([Document.Description],10),'Payment')" Value="BH_CompanyEntryDescription" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1472" OrderNumber="46" IsActive="1" IsVisible="1" ObjectName="Document" FieldName="=Format('{0:MMM yy}',[Document.TranDate])" Value="BH_CompanyDescriptiveDate" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1504" OrderNumber="47" IsActive="1" IsVisible="1" ObjectName="Document" FieldName="=Provider.FormatDate([Document.TranDate])" Value="BH_EffectiveEntryDate" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1536" OrderNumber="48" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=''" Value="BH_SettlementDate" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1568" OrderNumber="49" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="='0'" Value="BH_OriginatorStatusCode" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1600" OrderNumber="50" IsActive="1" IsVisible="1" ObjectName="Document" FieldName="=Provider.CacheValue('BH_BatchNumber',Provider.GetNextBatchNbr())" Value="BH_BatchNumber" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1632" OrderNumber="51" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="='8'" Value="BCR_RecordTypeCode" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1664" OrderNumber="52" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=[BH_OriginatingDFI_ID]" Value="BCR_OriginatingDFI_ID" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1696" OrderNumber="53" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="='220'" Value="BCR_ServiceClassCode" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1728" OrderNumber="54" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=[BH_BatchNumber]" Value="BCR_BatchNumber" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1760" OrderNumber="55" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=Provider.AddToHash('EntryHash',[CCD_ReceivingDFI_ID])" Value="BCR_EntryHash" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1792" OrderNumber="56" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=[BH_CompanyIdentification]" Value="BCR_CompanyID" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1824" OrderNumber="57" IsActive="1" IsVisible="1" ObjectName="cashAccountSettings" FieldName="@CashAccountPaymentMethodDetail.detailID" Value="='6'" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1856" OrderNumber="58" IsActive="1" IsVisible="1" ObjectName="cashAccountSettings" FieldName="DetailValue" Value="BH_CompanyIDType" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1888" OrderNumber="59" IsActive="1" IsVisible="1" ObjectName="cashAccountSettings" FieldName="DetailValue" Value="BCR_CompanyIDType" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1920" OrderNumber="60" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=Provider.FormatAmount12([ARPaymentList.CuryOrigDocAmt])" Value="BCR_TotalCreditAmount" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1952" OrderNumber="61" IsActive="1" IsVisible="1" ObjectName="ARPaymentList" FieldName="=Provider.FormatAmount12(0.0)" Value="BCR_TotalDebitAmount" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="1984" OrderNumber="62" IsActive="1" IsVisible="1" ObjectName="Document" FieldName="=Provider.CacheValue('ExportFileName',(Format( 'ACH{0:MMddyy}-{1:00}.txt', [Document.TranDate], [Document.DateSeqNbr] )))" Value="FileName" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="2016" OrderNumber="63" IsActive="1" IsVisible="1" ObjectName="Document" FieldName="Processing" Value="='1'" NeedCommit="1" IgnoreError="0" />
+                    <SYMappingField LineNbr="2048" OrderNumber="64" IsActive="1" IsVisible="1" ObjectName="Document" FieldName="ExportTime" Value="=Now()" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="2080" OrderNumber="65" IsActive="1" IsVisible="1" ObjectName="Document" FieldName="ExportFileName" Value="=Format( 'ACH{0:MMddyy}-{1:00}.txt', [Document.TranDate], [Document.DateSeqNbr] )" NeedCommit="0" IgnoreError="0" />
+                    <SYMappingField LineNbr="2112" OrderNumber="66" IsActive="1" IsVisible="1" ObjectName="Document" FieldName="&lt;Save&gt;" NeedCommit="0" IgnoreError="0" />
+                </row>
+            </SYMapping>
+            <SYProvider>
+                <row ProviderID="95d04d63-2276-4497-a2c2-9bd6166e7554" Name="ACHExportProvider" IsActive="1" ProviderType="PX.DataSync.ACHProvider" ObjectCntr="5" ParameterCntr="37">
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="1" IsActive="1" Name="FH_RecordTypeCode" DisplayName="FH_RecordTypeCode" IsKey="0" DataType="System.String" DataLength="1" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="2" IsActive="1" Name="FH_PriorityCode" DisplayName="FH_PriorityCode" IsKey="0" DataType="System.String" DataLength="2" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="3" IsActive="1" Name="FH_ImmediateDestination" DisplayName="FH_ImmediateDestination" IsKey="0" DataType="System.String" DataLength="10" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="4" IsActive="1" Name="FH_ImmediateOrigin" DisplayName="FH_ImmediateOrigin" IsKey="0" DataType="System.String" DataLength="10" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="5" IsActive="1" Name="FH_FileCreationDate" DisplayName="FH_FileCreationDate" IsKey="0" DataType="System.String" DataLength="6" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="6" IsActive="1" Name="FH_FileCreationTime" DisplayName="FH_FileCreationTime" IsKey="0" DataType="System.String" DataLength="4" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="7" IsActive="1" Name="FH_FileIDModifier" DisplayName="FH_FileIDModifier" IsKey="0" DataType="System.String" DataLength="1" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="8" IsActive="1" Name="FH_FormatCode" DisplayName="FH_FormatCode" IsKey="0" DataType="System.String" DataLength="1" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="9" IsActive="1" Name="FH_ImmediateDestinationName" DisplayName="FH_ImmediateDestinationName" IsKey="0" DataType="System.String" DataLength="23" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="10" IsActive="1" Name="FH_ImmediateOriginName" DisplayName="FH_ImmediateOriginName" IsKey="0" DataType="System.String" DataLength="23" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="11" IsActive="1" Name="FH_ReferenceCode" DisplayName="FH_ReferenceCode" IsKey="0" DataType="System.String" DataLength="8" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="12" IsActive="1" Name="FCR_RecordTypeCode" DisplayName="FCR_RecordTypeCode" IsKey="0" DataType="System.String" DataLength="1" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="13" IsActive="1" Name="FCR_EntryHash" DisplayName="FCR_EntryHash" IsKey="0" DataType="System.String" DataLength="10" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="14" IsActive="1" Name="FCR_TotalDebitEntry" DisplayName="FCR_TotalDebitEntry" IsKey="0" DataType="System.String" DataLength="12" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="15" IsActive="1" Name="FCR_TotalCreditEntry" DisplayName="FCR_TotalCreditEntry" IsKey="0" DataType="System.String" DataLength="12" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="16" IsActive="1" Name="FCR_Reserved" DisplayName="FCR_Reserved" IsKey="0" DataType="System.String" DataLength="39" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="17" IsActive="1" Name="BH_RecordTypeCode" DisplayName="BH_RecordTypeCode" IsKey="0" DataType="System.String" DataLength="1" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="18" IsActive="1" Name="BH_ServiceClassCode" DisplayName="BH_ServiceClassCode" IsKey="0" DataType="System.String" DataLength="3" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="19" IsActive="1" Name="BH_CompanyName" DisplayName="BH_CompanyName" IsKey="0" DataType="System.String" DataLength="16" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="20" IsActive="1" Name="BH_CompanyDiscretionaryData" DisplayName="BH_CompanyDiscretionaryData" IsKey="0" DataType="System.String" DataLength="20" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="21" IsActive="1" Name="BH_CompanyIDType" DisplayName="BH_CompanyIDType" IsKey="0" DataType="System.String" DataLength="1" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="22" IsActive="1" Name="BH_CompanyIdentification" DisplayName="BH_CompanyIdentification" IsKey="0" DataType="System.String" DataLength="9" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="23" IsActive="1" Name="BH_EntryClassCode" DisplayName="BH_EntryClassCode" IsKey="0" DataType="System.String" DataLength="3" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="24" IsActive="1" Name="BH_CompanyEntryDescription" DisplayName="BH_CompanyEntryDescription" IsKey="0" DataType="System.String" DataLength="10" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="25" IsActive="1" Name="BH_CompanyDescriptiveDate" DisplayName="BH_CompanyDescriptiveDate" IsKey="0" DataType="System.String" DataLength="6" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="26" IsActive="1" Name="BH_EffectiveEntryDate" DisplayName="BH_EffectiveEntryDate" IsKey="0" DataType="System.String" DataLength="6" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="27" IsActive="1" Name="BH_SettlementDate" DisplayName="BH_SettlementDate" IsKey="0" DataType="System.String" DataLength="3" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="28" IsActive="1" Name="BH_OriginatorStatusCode" DisplayName="BH_OriginatorStatusCode" IsKey="0" DataType="System.String" DataLength="1" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="29" IsActive="1" Name="BH_OriginatingDFI_ID" DisplayName="BH_OriginatingDFI_ID" IsKey="0" DataType="System.String" DataLength="8" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="30" IsActive="1" Name="BH_BatchNumber" DisplayName="BH_BatchNumber" IsKey="0" DataType="System.String" DataLength="7" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="31" IsActive="1" Name="BCR_RecordTypeCode" DisplayName="BCR_RecordTypeCode" IsKey="0" DataType="System.String" DataLength="1" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="32" IsActive="1" Name="BCR_ServiceClassCode" DisplayName="BCR_ServiceClassCode" IsKey="0" DataType="System.String" DataLength="3" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="33" IsActive="1" Name="BCR_EntryHash" DisplayName="BCR_EntryHash" IsKey="0" DataType="System.String" DataLength="10" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="34" IsActive="1" Name="BCR_TotalDebitAmount" DisplayName="BCR_TotalDebitAmount" IsKey="0" DataType="System.String" DataLength="12" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="35" IsActive="1" Name="BCR_TotalCreditAmount" DisplayName="BCR_TotalCreditAmount" IsKey="0" DataType="System.String" DataLength="12" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="36" IsActive="1" Name="BCR_CompanyIDType" DisplayName="BCR_CompanyIDType" IsKey="0" DataType="System.String" DataLength="1" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="37" IsActive="1" Name="BCR_CompanyID" DisplayName="BCR_CompanyID" IsKey="0" DataType="System.String" DataLength="9" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="38" IsActive="1" Name="BCR_MessageAuthCode" DisplayName="BCR_MessageAuthCode" IsKey="0" DataType="System.String" DataLength="19" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="39" IsActive="1" Name="BCR_Reserved" DisplayName="BCR_Reserved" IsKey="0" DataType="System.String" DataLength="6" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="40" IsActive="1" Name="BCR_OriginatingDFI_ID" DisplayName="BCR_OriginatingDFI_ID" IsKey="0" DataType="System.String" DataLength="8" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="41" IsActive="1" Name="BCR_BatchNumber" DisplayName="BCR_BatchNumber" IsKey="0" DataType="System.String" DataLength="7" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="42" IsActive="1" Name="CCD_RecordTypeCode" DisplayName="CCD_RecordTypeCode" IsKey="0" DataType="System.String" DataLength="1" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="43" IsActive="1" Name="CCD_TransactionCode" DisplayName="CCD_TransactionCode" IsKey="0" DataType="System.String" DataLength="2" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="44" IsActive="1" Name="CCD_ReceivingDFI_ID" DisplayName="CCD_ReceivingDFI_ID" IsKey="0" DataType="System.String" DataLength="8" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="45" IsActive="1" Name="CCD_CheckDigit" DisplayName="CCD_CheckDigit" IsKey="0" DataType="System.String" DataLength="1" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="46" IsActive="1" Name="CCD_DFIAccountNumber" DisplayName="CCD_DFIAccountNumber" IsKey="0" DataType="System.String" DataLength="17" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="47" IsActive="1" Name="CCD_Amount" DisplayName="CCD_Amount" IsKey="0" DataType="System.String" DataLength="10" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="48" IsActive="1" Name="CCD_IdentificationNumber" DisplayName="CCD_IdentificationNumber" IsKey="0" DataType="System.String" DataLength="15" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="49" IsActive="1" Name="CCD_ReceivingCompanyName" DisplayName="CCD_ReceivingCompanyName" IsKey="0" DataType="System.String" DataLength="22" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="50" IsActive="1" Name="CCD_DiscretionaryData" DisplayName="CCD_DiscretionaryData" IsKey="0" DataType="System.String" DataLength="2" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="51" IsActive="1" Name="CCD_AddendaRecordIndicator" DisplayName="CCD_AddendaRecordIndicator" IsKey="0" DataType="System.String" DataLength="1" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="52" IsActive="1" Name="CCD_TraceNumber" DisplayName="CCD_TraceNumber" IsKey="0" DataType="System.String" DataLength="15" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="53" IsActive="1" Name="NoteID" DisplayName="NoteID" IsKey="0" DataType="System.Int64" DataLength="-1" IsCustom="0" />
+                    <SYProviderField ObjectName="CCD_Entry" LineNbr="54" IsActive="1" Name="FileName" DisplayName="FileName" IsKey="0" DataType="System.String" DataLength="-1" IsCustom="0" />
+                    <SYProviderObject LineNbr="2" IsActive="1" Name="CCD_Entry" FieldCntr="54" IsCustom="1" />
+                    <SYProviderParameter LineNbr="25" Name="FileName" DisplayName="File Name" Value="ACH000001.txt" />
+                    <SYProviderParameter LineNbr="26" Name="Encoding" DisplayName="Encoding" Value="US-ASCII" />
+                    <SYProviderParameter LineNbr="27" Name="Schema" DisplayName="Schema" Value="Data Providers (ACHExportProvider)\ACH_CCD_Schema.txt" />
+                    <SYProviderParameter LineNbr="28" Name="LineFiller" DisplayName="Default Line Fill Character" Value=" " />
+                    <SYProviderParameter LineNbr="29" Name="ColumnFiller" DisplayName="Default Column Fill Character" Value=" " />
+                    <SYProviderParameter LineNbr="30" Name="BlockFiller" DisplayName="Default Block Fill Character" Value="9" />
+                    <SYProviderParameter LineNbr="31" Name="LineSize" DisplayName="Line Size" Value="94" />
+                    <SYProviderParameter LineNbr="32" Name="BlockSize" DisplayName="Block Size" Value="10" />
+                    <SYProviderParameter LineNbr="33" Name="FileSeqNumber" DisplayName="File Day Sequence Number" Value="0" />
+                    <SYProviderParameter LineNbr="34" Name="FileReferenceCode" DisplayName="File Reference Code" Value="" />
+                    <SYProviderParameter LineNbr="35" Name="BatchStartNumber" DisplayName="Batch Start Number" Value="1" />
+                    <SYProviderParameter LineNbr="36" Name="TraceNbrOffset" DisplayName="Trace Number Offset" Value="0" />
+                    <SYProviderParameter LineNbr="37" Name="BatchNbr" DisplayName="Batch Number" Value="000001" />
+                    <Note oldNoteID="11296" NoteText="" GraphType="PX.Api.SYProviderMaint" EntityType="PX.Api.SYProvider" />
+                </row>
+            </SYProvider>
+        </data>
+    </data-set>
+</XportScenario>

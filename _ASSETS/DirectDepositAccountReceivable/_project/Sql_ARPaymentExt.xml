@@ -1,0 +1,16 @@
+﻿<Sql TableName="ARPaymentExt" TableSchemaXml="#CDATA">
+    <CDATA name="TableSchemaXml"><![CDATA[<table name="ARPaymentExt">
+  <col name="CompanyID" type="Int" default="Zero" />
+  <col name="DocType" type="Char(3)" />
+  <col name="RefNbr" type="NVarChar(15)" />
+  <col name="DeletedDatabaseRecord" type="Bit" default="Zero" />
+  <col name="Printed" type="Bit" />
+  <col name="StubCntr" type="Int" default="Zero" />
+  <col name="BillCntr" type="Int" default="Zero" />
+  <index name="ARPaymentExt_PK" clustered="true" primary="true" unique="true">
+    <col name="CompanyID" />
+    <col name="DocType" />
+    <col name="RefNbr" />
+  </index>
+</table>]]></CDATA>
+</Sql>

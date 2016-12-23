@@ -1,0 +1,13 @@
+﻿<SiteMapNode>
+    <data-set>
+        <relations version="3" main-table="SiteMap" />
+        <layout>
+            <table name="SiteMap" />
+        </layout>
+        <data>
+            <SiteMap>
+                <row Position="2.5" Title="Batch Payments" Url="~/Pages/AR/AR305050.aspx" Expanded="0" IsFolder="0" ScreenID="AR305050" NodeID="44d50b45-0f5b-48aa-a25a-8e74f78d5602" ParentID="5c664ef6-cf08-4be6-b2d7-1b2a73f3e6ee" />
+            </SiteMap>
+        </data>
+    </data-set>
+</SiteMapNode>

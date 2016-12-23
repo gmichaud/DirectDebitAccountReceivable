@@ -250,3 +250,6 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+#Exception for everything in _ASSETS folder
+!_ASSETS/**

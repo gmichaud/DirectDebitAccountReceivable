@@ -1,0 +1,15 @@
+﻿<Page path="~/pages/ar/ar511000.aspx" ControlId="1" pageSource="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">
+    <PXFormView ID="form" ParentId="phF_form" TypeFullName="PX.Web.UI.PXFormView">
+        <Children Key="Template">
+            <AddItem>
+                <PXDropDown TypeFullName="PX.Web.UI.PXDropDown">
+                    <Prop Key="Virtual:ApplyStylesheetSkin" />
+                    <Prop Key="ID" Value="CstPXDropDown1" />
+                    <Prop Key="DataField" Value="PaymentType" />
+                    <Prop Key="CommitChanges" Value="True" />
+                </PXDropDown>
+            </AddItem>
+            <PXDateTimeEdit DataField="PayDate" OriginalIndex="1" />
+        </Children>
+    </PXFormView>
+</Page>

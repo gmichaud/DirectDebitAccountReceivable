@@ -1,0 +1,13 @@
+﻿<SiteMapNode>
+    <data-set>
+        <relations version="3" main-table="SiteMap" />
+        <layout>
+            <table name="SiteMap" />
+        </layout>
+        <data>
+            <SiteMap>
+                <row Position="2" Title="Process Payments" Url="~/Pages/AR/AR505050.aspx" Expanded="0" IsFolder="0" ScreenID="AR505050" NodeID="c7779b29-e6a3-4966-b3ec-4cdf1b8b5bd2" ParentID="4ff2137b-aa2e-46a0-8721-92aef6eeeb98" />
+            </SiteMap>
+        </data>
+    </data-set>
+</SiteMapNode>
