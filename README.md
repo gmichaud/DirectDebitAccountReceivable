@@ -1,9 +1,9 @@
 [![Project Status](http://opensource.box.com/badges/active.svg)](http://opensource.box.com/badges)
 
-Direct Deposit in Account Receivable
+Direct Debit in Account Receivable
 ==================================
 
-An extension that allows to create batch payments and generate ACH Files to use Direct Deposit as a payment method in Account Receivable.
+An extension that allows to create batch payments and generate ACH Files to use Direct Debit as a payment method in Account Receivable.
 
 Quick Start
 -----------
@@ -11,8 +11,8 @@ Quick Start
 ### Installation
 
 ##### Install the customization project
-1. Download DirectDepositAccountReceivable.zip from this repository
-2. In your Acumatica ERP instance, import DirectDepositAccountReceivable.zip as a customization project
+1. Download DirectDebitAccountReceivable.zip from this repository
+2. In your Acumatica ERP instance, import DirectDebitAccountReceivable.zip as a customization project
 3. Publish the customization project
 
 ### Configuration
@@ -26,15 +26,15 @@ These instructions assume that Fedwire has been setup for AP and it is already i
 ![Screenshot](/_ASSETS/ReadMe/2.png)
 
 
-### Setting up the Customer for Direct Deposit
+### Setting up the Customer for Direct Debit
 Next we need to setup the customer and the account you will be using to pull the funds from.
 Financials – Account Receivable – Work area – Customers Payment Methods
 Add the ACH or FEDWIRE method to the customer. As well as the customer bank acct and routing number as prompted on this screen.
 ![Screenshot](/_ASSETS/ReadMe/3.png)
 
 
-### Processing Direct Deposit Payments
-1. Under Finance/Accounts Receivable/Process tab, go to Direct Deposit Processing - prepare payments. Then check the payments you would like to process and hit the process button on top. If you want to process all payments listed then Press the Process All button on top.
+### Processing Direct Debit Payments
+1. Under Finance/Accounts Receivable/Process tab, go to Direct Debit Processing - prepare payments. Then check the payments you would like to process and hit the process button on top. If you want to process all payments listed then Press the Process All button on top.
 ![Screenshot](/_ASSETS/ReadMe/4.png)
 
 2. Go to the next menu item: Process Payments. Enter your payment method and cash account. You should see listed the payments you chose in the prior step or any payments that have been prepared previously. Once again Mark the payments you would like to process and press the button on top that sais Process or Process all depending on what you would like to do.
