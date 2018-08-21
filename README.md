@@ -5,6 +5,8 @@ Direct Debit in Account Receivable
 
 An extension that allows to create batch payments and generate ACH Files to use Direct Debit as a payment method in Account Receivable.
 
+Tested on Acumatica 2018 R1
+
 Quick Start
 -----------
 
