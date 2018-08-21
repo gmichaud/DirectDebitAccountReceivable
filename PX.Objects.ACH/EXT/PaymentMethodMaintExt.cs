@@ -2,10 +2,6 @@
 using PX.Objects.CA;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PX.Objects.ACH
 {
@@ -52,6 +48,7 @@ namespace PX.Objects.ACH
             //We use a common field for batch numbering
             PXUIFieldAttribute.SetVisible<PaymentMethodAccount.aPBatchLastRefNbr>(Base.CashAccounts.Cache, null, row.UseForAP == true || (isDirectDeposit && createARBatch));
         }
+
         public PXAction<PaymentMethod> insertDefaultData;
         [PXUIField(DisplayName = Messages.InsertDefaultData)]
         [PXButton()]

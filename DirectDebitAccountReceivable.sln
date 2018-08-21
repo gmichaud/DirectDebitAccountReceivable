@@ -1,31 +1,31 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2047
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "DirectDepositAccountReceivable", "http://localhost/DirectDepositAccountReceivable", "{49B179F5-CC1C-428D-B678-917653B67D47}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PX.Objects.ACH", "PX.Objects.ACH\PX.Objects.ACH.csproj", "{9731B6C8-5D6B-4B3C-A005-3B676D661351}"
+EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "DirectDebit2018R1", "http://localhost/DirectDebit2018R1", "{1D6D9222-4771-436A-9F84-AB5664F23730}"
 	ProjectSection(WebsiteProperties) = preProject
 		UseIISExpress = "false"
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.5.1"
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.7.1"
 		ProjectReferences = "{9731b6c8-5d6b-4b3c-a005-3b676d661351}|PX.Objects.ACH.dll;"
-		Debug.AspNetCompiler.VirtualPath = "/DirectDepositAccountReceivable"
-		Debug.AspNetCompiler.PhysicalPath = "..\..\Program Files (x86)\Acumatica ERP\DirectDepositAccountReceivable\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\DirectDepositAccountReceivable\"
+		Debug.AspNetCompiler.VirtualPath = "/DirectDebit2018R1"
+		Debug.AspNetCompiler.PhysicalPath = "..\..\Program Files (x86)\Acumatica ERP\DirectDebit2018R1\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\DirectDebit2018R1\"
 		Debug.AspNetCompiler.Updateable = "true"
 		Debug.AspNetCompiler.ForceOverwrite = "true"
 		Debug.AspNetCompiler.FixedNames = "false"
 		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/DirectDepositAccountReceivable"
-		Release.AspNetCompiler.PhysicalPath = "..\..\Program Files (x86)\Acumatica ERP\DirectDepositAccountReceivable\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\DirectDepositAccountReceivable\"
+		Release.AspNetCompiler.VirtualPath = "/DirectDebit2018R1"
+		Release.AspNetCompiler.PhysicalPath = "..\..\Program Files (x86)\Acumatica ERP\DirectDebit2018R1\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\DirectDebit2018R1\"
 		Release.AspNetCompiler.Updateable = "true"
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		SlnRelativePath = "..\..\Program Files (x86)\Acumatica ERP\DirectDepositAccountReceivable\"
+		SlnRelativePath = "..\..\Program Files (x86)\Acumatica ERP\DirectDebit2018R1\"
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PX.Objects.ACH", "PX.Objects.ACH\PX.Objects.ACH.csproj", "{9731B6C8-5D6B-4B3C-A005-3B676D661351}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,14 +33,19 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{49B179F5-CC1C-428D-B678-917653B67D47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{49B179F5-CC1C-428D-B678-917653B67D47}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{9731B6C8-5D6B-4B3C-A005-3B676D661351}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9731B6C8-5D6B-4B3C-A005-3B676D661351}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9731B6C8-5D6B-4B3C-A005-3B676D661351}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9731B6C8-5D6B-4B3C-A005-3B676D661351}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D6D9222-4771-436A-9F84-AB5664F23730}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D6D9222-4771-436A-9F84-AB5664F23730}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D6D9222-4771-436A-9F84-AB5664F23730}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D6D9222-4771-436A-9F84-AB5664F23730}.Release|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1BD9EE43-8200-4A64-9879-D1A44E2BD8CA}
 	EndGlobalSection
 EndGlobal

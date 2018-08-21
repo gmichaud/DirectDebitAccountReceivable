@@ -4,13 +4,8 @@ using PX.Data;
 using PX.Objects.AR;
 using PX.Objects.CA;
 using PX.Objects.CR;
-using PX.Objects.CS;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PayBillsFilter = PX.Objects.AR.ARChargeInvoices.PayBillsFilter;
 
 namespace PX.Objects.ACH
@@ -78,43 +73,43 @@ namespace PX.Objects.ACH
                                     InnerJoin<Customer, On<Customer.bAccountID, Equal<ARInvoice.customerID>>,
                                     InnerJoin<CustomerPaymentMethod, On<CustomerPaymentMethod.bAccountID, Equal<ARInvoice.customerID>,
                                         And<CustomerPaymentMethod.pMInstanceID, Equal<ARInvoice.pMInstanceID>,
-                                        And<CustomerPaymentMethod.isActive, Equal<boolTrue>>>>,
+                                        And<CustomerPaymentMethod.isActive, Equal<True>>>>,
                                     InnerJoin<PaymentMethod, On<PaymentMethod.paymentMethodID, Equal<CustomerPaymentMethod.paymentMethodID>,
                                         //And<PaymentMethod.paymentType, Equal<PaymentMethodType.creditCard>, -- This line was replace by the one below
                                         And<PaymentMethod.paymentType, NotEqual<PaymentMethodType.creditCard>, //we want to supporte cash / check because Fedwire does...
                                         //And<PaymentMethod.aRIsProcessingRequired, Equal<boolTrue>>>>, -- This line was replace by the one below
-                                        And<PaymentMethodExt.aRCreateBatchPayment, Equal<boolTrue>>>>,
+                                        And<PaymentMethodExt.aRCreateBatchPayment, Equal<True>>>>,
                                     LeftJoin<CashAccount, On<CashAccount.cashAccountID, Equal<ARInvoice.cashAccountID>>,
                                     LeftJoin<ARAdjust, On<ARAdjust.adjdDocType, Equal<ARInvoice.docType>,
                                         And<ARAdjust.adjdRefNbr, Equal<ARInvoice.refNbr>,
-                                        And<ARAdjust.released, Equal<boolFalse>,
-                                        And<ARAdjust.voided, Equal<boolFalse>>>>>,
+                                        And<ARAdjust.released, Equal<False>,
+                                        And<ARAdjust.voided, Equal<False>>>>>,
                                     LeftJoin<ARPayment, On<ARPayment.docType, Equal<ARAdjust.adjgDocType>,
                                         And<ARPayment.refNbr, Equal<ARAdjust.adjgRefNbr>>>>>>>>>,
-                                    Where<ARInvoice.released, Equal<boolTrue>,
-                                        And<ARInvoice.openDoc, Equal<boolTrue>,
+                                    Where<ARInvoice.released, Equal<True>,
+                                        And<ARInvoice.openDoc, Equal<True>,
                                         And<ARInvoice.pendingPPD, NotEqual<True>,
-                                        And2<Where2<Where2<Where<Current<PayBillsFilter.showOverDueFor>, Equal<boolTrue>,
+                                        And2<Where2<Where2<Where<Current<PayBillsFilter.showOverDueFor>, Equal<True>,
                                                     And<ARInvoice.dueDate, LessEqual<Required<ARInvoice.dueDate>>
                                                     >>,
-                                            Or2<Where<Current<PayBillsFilter.showDueInLessThan>, Equal<boolTrue>,
+                                            Or2<Where<Current<PayBillsFilter.showDueInLessThan>, Equal<True>,
                                                     And<ARInvoice.dueDate, GreaterEqual<Current<PayBillsFilter.payDate>>,
                                                     And<ARInvoice.dueDate, LessEqual<Required<ARInvoice.dueDate>>
                                                     >>>,
-                                            Or2<Where<Current<PayBillsFilter.showDiscountExparedWithinLast>, Equal<boolTrue>,
+                                            Or2<Where<Current<PayBillsFilter.showDiscountExparedWithinLast>, Equal<True>,
                                                     And<ARInvoice.discDate, GreaterEqual<Required<ARInvoice.discDate>>,
                                                     And<ARInvoice.discDate, LessEqual<Current<PayBillsFilter.payDate>>
                                                     >>>,
-                                            Or<Where<Current<PayBillsFilter.showDiscountExpiresInLessThan>, Equal<boolTrue>,
+                                            Or<Where<Current<PayBillsFilter.showDiscountExpiresInLessThan>, Equal<True>,
                                                     And<ARInvoice.discDate, GreaterEqual<Current<PayBillsFilter.payDate>>,
                                                     And<ARInvoice.discDate, LessEqual<Required<ARInvoice.discDate>>
                                                     >>>>>>>,
-                                            Or<Where<Current<PayBillsFilter.showOverDueFor>, Equal<boolFalse>,
-                                           And<Current<PayBillsFilter.showDueInLessThan>, Equal<boolFalse>,
-                                           And<Current<PayBillsFilter.showDiscountExparedWithinLast>, Equal<boolFalse>,
-                                           And<Current<PayBillsFilter.showDiscountExpiresInLessThan>, Equal<boolFalse>>>>>>>,
+                                            Or<Where<Current<PayBillsFilter.showOverDueFor>, Equal<False>,
+                                           And<Current<PayBillsFilter.showDueInLessThan>, Equal<False>,
+                                           And<Current<PayBillsFilter.showDiscountExparedWithinLast>, Equal<False>,
+                                           And<Current<PayBillsFilter.showDiscountExpiresInLessThan>, Equal<False>>>>>>>,
 
-                                        And<Where2<Where<ARAdjust.adjgRefNbr, IsNull, Or<ARPayment.voided, Equal<boolTrue>>>,
+                                        And<Where2<Where<ARAdjust.adjgRefNbr, IsNull, Or<ARPayment.voided, Equal<True>>>,
                                         And<Match<Customer, Current<AccessInfo.userName>>>>>>>>>,
                                         OrderBy<Asc<ARInvoice.customerID>>>
                                 .Select(Base, OverDueForDate,
@@ -166,7 +161,7 @@ namespace PX.Objects.ACH
             {
                 var pmt = (ARPayment)e.Row;
                 var cust = (BAccountR)PXSelectorAttribute.Select<ARPayment.customerID>(cache, pmt);
-                pmt.DocDesc = String.Format(Messages.PaymentFrom, cust.AcctName);
+                pmt.DocDesc = PXMessages.LocalizeFormatNoPrefixNLA(Messages.PaymentFrom, cust.AcctName);
             });
 
             //PaymentRefNumberAttribute behave so nicely that we only get it at the time of persisting

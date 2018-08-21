@@ -31,13 +31,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PX.Common">
-      <HintPath>..\..\..\Program Files (x86)\Acumatica ERP\DirectDepositAccountReceivable\Bin\PX.Common.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Acumatica ERP\DirectDebit2018R1\Bin\PX.Common.dll</HintPath>
     </Reference>
     <Reference Include="PX.Data">
-      <HintPath>..\..\..\Program Files (x86)\Acumatica ERP\DirectDepositAccountReceivable\Bin\PX.Data.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Acumatica ERP\DirectDebit2018R1\Bin\PX.Data.dll</HintPath>
     </Reference>
     <Reference Include="PX.Objects">
-      <HintPath>..\..\..\Program Files (x86)\Acumatica ERP\DirectDepositAccountReceivable\Bin\PX.Objects.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Acumatica ERP\DirectDebit2018R1\Bin\PX.Objects.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

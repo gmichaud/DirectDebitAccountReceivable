@@ -1,17 +1,12 @@
 ﻿using PX.Api;
 using PX.Data;
 using PX.Objects.AR;
+using PX.Objects.AR.MigrationMode;
 using PX.Objects.CA;
-using PX.Objects.CR;
 using PX.Objects.CS;
-using PX.SM;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Compilation;
 
 namespace PX.Objects.ACH
 {
@@ -26,7 +21,8 @@ namespace PX.Objects.ACH
                             Where<CABatchDetail.batchNbr, Equal<Current<CABatch.batchNbr>>>> BatchPayments;
 
         public PXSelect<CashAccount, Where<CashAccount.cashAccountID, Equal<Current<CABatch.cashAccountID>>>> cashAccount;
-        public PXSetup<CASetup> casetup;
+        public PXSetup<CASetup> CASetup;
+        public ARSetupNoMigrationMode ARSetup;
 
         public PXSelectJoin<CABatchDetail,
                     InnerJoin<ARPayment, On<ARPayment.docType, Equal<CABatchDetail.origDocType>,
@@ -49,10 +45,10 @@ namespace PX.Objects.ACH
                 And<CashAccountPaymentMethodDetail.detailID, Equal<Required<CashAccountPaymentMethodDetail.detailID>>>>>>>> cashAccountSettings;
 
         public PXSelectReadonly2<CustomerPaymentMethodDetail,
-                InnerJoin<CustomerPaymentMethod, 
-                    On<CustomerPaymentMethod.pMInstanceID, 
-                        Equal<CustomerPaymentMethodDetail.pMInstanceID>, 
-                    And<CustomerPaymentMethod.paymentMethodID, 
+                InnerJoin<CustomerPaymentMethod,
+                    On<CustomerPaymentMethod.pMInstanceID,
+                        Equal<CustomerPaymentMethodDetail.pMInstanceID>,
+                    And<CustomerPaymentMethod.paymentMethodID,
                         Equal<CustomerPaymentMethodDetail.paymentMethodID>>>>,
                 Where<CustomerPaymentMethodDetail.paymentMethodID, Equal<Current<CABatch.paymentMethodID>>,
                     And<Current<ARPayment.docType>, IsNotNull,
@@ -65,7 +61,9 @@ namespace PX.Objects.ACH
 
         public ARBatchEntry()
         {
-            CASetup setup = casetup.Current;
+            CASetup caSetup = CASetup.Current;
+            ARSetup arSetup = ARSetup.Current;
+
             RowUpdated.AddHandler<CABatch>(ParentFieldUpdated);
         }
 
@@ -76,26 +74,34 @@ namespace PX.Objects.ACH
         [CABatchType.RefNbr(typeof(Search<CABatch.batchNbr, Where<CABatchExt.batchModule, Equal<GL.BatchModule.moduleAR>>>))]
         protected virtual void CABatch_BatchNbr_CacheAttached(PXCache sender) { }
 
-        public PXAction<CABatch> viewARDocument;
-        [PXUIField(DisplayName = Messages.ViewARDocument, MapEnableRights = PXCacheRights.Select, MapViewRights = PXCacheRights.Select, Visible = true)]
+        public PXAction<CABatch> ViewARDocument;
+        //Upgrade to 2018R1 Note : This action was also made Visible = false in CABatchEntry
+        [PXUIField(DisplayName = Messages.ViewARDocument, MapEnableRights = PXCacheRights.Select, MapViewRights = PXCacheRights.Select, Visible = false)]
         [PXLookupButton]
-        public virtual IEnumerable ViewARDocument(PXAdapter adapter)
+        public virtual IEnumerable viewARDocument(PXAdapter adapter)
         {
 
-            CABatchDetail doc = this.BatchPayments.Current;
-            if (doc != null)
+            CABatchDetail detail = this.BatchPayments.Current;
+            if (detail == null)
             {
-                ARRegister arDoc = PXSelect<ARRegister,
-                                    Where<ARRegister.docType, Equal<Required<ARRegister.docType>>,
-                                And<ARRegister.refNbr, Equal<Required<ARRegister.refNbr>>>>>.Select(this, doc.OrigDocType, doc.OrigRefNbr);
-                if (arDoc != null)
-                {
-                    ARPaymentEntry apGraph = PXGraph.CreateInstance<ARPaymentEntry>();
-                    apGraph.Document.Current = apGraph.Document.Search<ARRegister.refNbr>(arDoc.RefNbr, arDoc.DocType);
-                    if (apGraph.Document.Current != null)
-                        throw new PXRedirectRequiredException(apGraph, true, "") { Mode = PXBaseRedirectException.WindowMode.NewWindow };
-                }
+                return adapter.Get();
             }
+
+            ARRegister arDocument = PXSelect<ARRegister,
+                                Where<ARRegister.docType, Equal<Required<ARRegister.docType>>,
+                            And<ARRegister.refNbr, Equal<Required<ARRegister.refNbr>>>>>.Select(this, detail.OrigDocType, detail.OrigRefNbr);
+            if (arDocument == null)
+            {
+                return adapter.Get();
+            }
+
+            ARPaymentEntry arGraph = PXGraph.CreateInstance<ARPaymentEntry>();
+            arGraph.Document.Current = arGraph.Document.Search<ARRegister.refNbr>(arDocument.RefNbr, arDocument.DocType);
+            if (arGraph.Document.Current != null)
+            {
+                throw new PXRedirectRequiredException(arGraph, true, "") { Mode = PXBaseRedirectException.WindowMode.NewWindow };
+            }
+
             return adapter.Get();
         }
 
@@ -103,16 +109,18 @@ namespace PX.Objects.ACH
         protected virtual void CABatch_RowSelected(PXCache sender, PXRowSelectedEventArgs e)
         {
             CABatch row = e.Row as CABatch;
-            if (row == null) return;
-            CABatchExt rowExt = PXCache<CABatch>.GetExtension<CABatchExt>(row);
-            bool isReleased = (row.Released == true);
+            if (row == null)
+            {
+                return;
+            }
 
+            CABatchExt rowExt = PXCache<CABatch>.GetExtension<CABatchExt>(row);
+            bool isReleased = row.Released == true;
 
             PXUIFieldAttribute.SetEnabled(sender, row, false);
             PXUIFieldAttribute.SetEnabled<CABatch.batchNbr>(sender, row, true);
-
-            bool isProcessing = row.Processing ?? false;
-            PXUIFieldAttribute.SetEnabled<CABatch.processing>(sender, row, true);
+            PXUIFieldAttribute.SetEnabled<CABatch.exportFileName>(sender, row, IsExport);
+            PXUIFieldAttribute.SetEnabled<CABatch.exportTime>(sender, row, IsExport);
 
             bool allowDelete = !isReleased;
             if (allowDelete)
@@ -122,33 +130,29 @@ namespace PX.Objects.ACH
             sender.AllowDelete = allowDelete;
 
             CashAccount cashaccount = (CashAccount)PXSelectorAttribute.Select<CABatch.cashAccountID>(sender, row);
-            bool clearEnabled = (row.Released != true) && (cashaccount != null) && (cashaccount.Reconcile == true);
+            bool clearEnabled = row.Released != true && cashaccount?.Reconcile == true;
+
+            PXUIFieldAttribute.SetEnabled<CABatch.hold>(sender, row, !isReleased);
+            PXUIFieldAttribute.SetEnabled<CABatch.tranDesc>(sender, row, !isReleased);
+            PXUIFieldAttribute.SetEnabled<CABatch.tranDate>(sender, row, !isReleased);
+            PXUIFieldAttribute.SetEnabled<CABatch.batchSeqNbr>(sender, row, !isReleased);
+            PXUIFieldAttribute.SetEnabled<CABatch.extRefNbr>(sender, row, !isReleased);
 
             if (!isReleased)
             {
-                PXUIFieldAttribute.SetEnabled<CABatch.hold>(sender, row, !isReleased);
-                PXUIFieldAttribute.SetEnabled<CABatch.tranDesc>(sender, row, !isReleased);
-                PXUIFieldAttribute.SetEnabled<CABatch.tranDate>(sender, row, !isReleased);
-                PXUIFieldAttribute.SetEnabled<CABatch.batchSeqNbr>(sender, row, !isReleased);
-                PXUIFieldAttribute.SetEnabled<CABatch.extRefNbr>(sender, row, !isReleased);
-                PXUIFieldAttribute.SetEnabled<CABatch.released>(sender, row, true);
-
-                bool hasDetails = this.BatchPayments.Select().Count > 0;
-                PXUIFieldAttribute.SetEnabled<CABatch.paymentMethodID>(sender, row, !hasDetails && !isReleased);
-                PXUIFieldAttribute.SetEnabled<CABatch.cashAccountID>(sender, row, !hasDetails && !isReleased);
+                bool hasDetails = BatchPayments.Select().Count > 0;
+                PXUIFieldAttribute.SetEnabled<CABatch.paymentMethodID>(sender, row, !hasDetails);
+                PXUIFieldAttribute.SetEnabled<CABatch.cashAccountID>(sender, row, !hasDetails);
                 if (hasDetails)
                 {
-                    decimal? curyTotal = Decimal.Zero, total = Decimal.Zero;
-                    this.CalcDetailsTotal(ref curyTotal, ref total);
+                    decimal? curyTotal = 0m, total = 0m;
+                    CalcDetailsTotal(ref curyTotal, ref total);
                     row.DetailTotal = total;
-                    row.CuryTotal = curyTotal;
+                    row.CuryDetailTotal = curyTotal;
                 }
 
             }
             PXUIFieldAttribute.SetVisible<CABatch.curyDetailTotal>(sender, row, isReleased);
-            PXUIFieldAttribute.SetVisible<CABatch.curyTotal>(sender, row, !isReleased);
-            PXUIFieldAttribute.SetEnabled<CABatch.exportFileName>(sender, row, isProcessing);
-            PXUIFieldAttribute.SetEnabled<CABatch.exportTime>(sender, row, isProcessing);
             PXUIFieldAttribute.SetVisible<CABatch.dateSeqNbr>(sender, row, isReleased);
 
             this.Release.SetEnabled(!isReleased && (row.Hold == false));
@@ -193,15 +197,22 @@ namespace PX.Objects.ACH
         #endregion
         #region CABatch Detail events
 
+        [PXMergeAttributes(Method = MergeMethod.Merge)]
+        [PXUIField(DisplayName = "Type")]
+        [ARDocType.List()]
+        public virtual void CABatchDetail_OrigDocType_CacheAttached(PXCache sender)
+        {
+        }
+
         protected virtual void CABatchDetail_RowInserting(PXCache sender, PXRowInsertingEventArgs e)
         {
             CABatchDetail row = (CABatchDetail)e.Row;
             bool isReleased = false;
 
-            ARRegister doc = PXSelect<ARRegister, Where<ARRegister.docType, Equal<Required<ARRegister.docType>>,
+            ARRegister document = PXSelect<ARRegister, Where<ARRegister.docType, Equal<Required<ARRegister.docType>>,
                                         And<ARRegister.refNbr, Equal<Required<ARRegister.refNbr>>>>>.Select(this, row.OrigDocType, row.OrigRefNbr);
-            isReleased = (bool)doc.Released;
-            
+            isReleased = (bool)document.Released;
+
             if (isReleased)
                 throw new PXException(CA.Messages.ReleasedDocumentMayNotBeAddedToCABatch);
         }
@@ -218,11 +229,11 @@ namespace PX.Objects.ACH
             bool isReleased = false;
             bool isVoided = false;
 
-            ARRegister doc = PXSelect<ARRegister, Where<ARRegister.docType, Equal<Required<ARRegister.docType>>,
+            ARRegister document = PXSelect<ARRegister, Where<ARRegister.docType, Equal<Required<ARRegister.docType>>,
                                         And<ARRegister.refNbr, Equal<Required<ARRegister.refNbr>>>>>.Select(this, row.OrigDocType, row.OrigRefNbr);
-            isReleased = (bool)doc.Released;
-            isVoided = (bool)doc.Voided;
-            
+            isReleased = (bool)document.Released;
+            isVoided = (bool)document.Voided;
+
             if (isReleased && !isVoided)
                 throw new PXException(CA.Messages.ReleasedDocumentMayNotBeDeletedFromCABatch);
         }
@@ -238,27 +249,32 @@ namespace PX.Objects.ACH
 
         private CABatch UpdateDocAmount(CABatchDetail row, bool negative)
         {
-            CABatch doc = this.Document.Current;
+            CABatch document = this.Document.Current;
             if (row.OrigDocType != null && row.OrigRefNbr != null)
             {
                 decimal? curyAmount = null, amount = null;
-                ARPayment pmt = PXSelect<ARPayment,
+                ARPayment payment = PXSelect<ARPayment,
                         Where<ARPayment.docType, Equal<Required<ARPayment.docType>>,
                         And<ARPayment.refNbr, Equal<Required<ARPayment.refNbr>>>>>.Select(this, row.OrigDocType, row.OrigRefNbr);
-                if (pmt != null)
+                if (payment != null)
                 {
-                    curyAmount = pmt.CuryOrigDocAmt;
-                    amount = pmt.OrigDocAmt;
+                    curyAmount = payment.CuryOrigDocAmt;
+                    amount = payment.OrigDocAmt;
                 }
-                
-                CABatch copy = (CABatch)this.Document.Cache.CreateCopy(doc);
+
+                CABatch copy = (CABatch)this.Document.Cache.CreateCopy(document);
                 if (curyAmount.HasValue)
-                    doc.CuryDetailTotal += negative ? -curyAmount : curyAmount;
+                {
+                    document.CuryDetailTotal += negative ? -curyAmount : curyAmount;
+                }
                 if (amount.HasValue)
-                    doc.DetailTotal += negative ? -amount : amount;
-                doc = this.Document.Update(doc);
+                {
+                    document.DetailTotal += negative ? -amount : amount;
+                }
+
+                document = this.Document.Update(document);
             }
-            return doc;
+            return document;
         }
 
 
@@ -269,18 +285,23 @@ namespace PX.Objects.ACH
         [PXProcessButton]
         public virtual IEnumerable release(PXAdapter adapter)
         {
+            CheckPrevOperation();
+            Save.Press();
+            CABatch document = this.Document.Current;
+            if (document.Released == false && document.Hold == false)
+            {
+                PXLongOperation.StartOperation(this, delegate () { ReleaseDoc(document); });
+            }
+
+            return adapter.Get();
+        }
+
+        private void CheckPrevOperation()
+        {
             if (PXLongOperation.Exists(UID))
             {
                 throw new ApplicationException(GL.Messages.PrevOperationNotCompleteYet);
             }
-            Save.Press();
-            CABatch doc = this.Document.Current;
-            if (doc.Released == false && doc.Hold == false)
-            {
-                PXLongOperation.StartOperation(this, delegate () { ReleaseDoc(doc); });
-            }
-
-            return adapter.Get();
         }
 
         public PXAction<CABatch> Export;
@@ -288,32 +309,27 @@ namespace PX.Objects.ACH
         [PXProcessButton]
         public virtual IEnumerable export(PXAdapter adapter)
         {
-            if (PXLongOperation.Exists(UID))
-            {
-                throw new ApplicationException(GL.Messages.PrevOperationNotCompleteYet);
-            }
-            CABatch doc = this.Document.Current;
-            if (doc != null && doc.Released == true && doc.Hold == false)
+            CheckPrevOperation();
+            CABatch document = this.Document.Current;
+            if (document != null && document.Released == true && document.Hold == false)
             {
                 PXResult<PaymentMethod, SYMapping> res = (PXResult<PaymentMethod, SYMapping>)PXSelectJoin<PaymentMethod,
                                     LeftJoin<SYMapping, On<SYMapping.mappingID, Equal<PaymentMethodExt.aRBatchExportSYMappingID>>>,
-                                        Where<PaymentMethod.paymentMethodID, Equal<Optional<CABatch.paymentMethodID>>>>.Select(this, doc.PaymentMethodID);
+                                        Where<PaymentMethod.paymentMethodID, Equal<Optional<CABatch.paymentMethodID>>>>.Select(this, document.PaymentMethodID);
                 PaymentMethod pt = res;
                 PaymentMethodExt ptx = PXCache<PaymentMethod>.GetExtension<PaymentMethodExt>(pt);
                 SYMapping map = res;
                 if (ptx != null && ptx.ARCreateBatchPayment == true && ptx.ARBatchExportSYMappingID != null && map != null)
                 {
-                    string defaultFileName = this.GenerateFileName(doc);
+                    string defaultFileName = this.GenerateFileName(document);
                     PXLongOperation.StartOperation(this, delegate ()
                     {
 
-                        PX.Api.SYExportProcess.RunScenario(map.Name, SYMapping.RepeatingOption.All, true, true,
+                        PX.Api.SYExportProcess.RunScenario(map.Name, SYMapping.RepeatingOption.All,
+                            true,
+                            true,
                             new PX.Api.PXSYParameter(CABatchEntry.ExportProviderParams.FileName, defaultFileName),
-                            new PX.Api.PXSYParameter(CABatchEntry.ExportProviderParams.BatchNbr, doc.BatchNbr)
-
-                            //,
-                            //new PX.Api.PXSYParameter(ExportProviderParams.BatchSequenceStartingNbr, "0000")
-                            );
+                            new PX.Api.PXSYParameter(CABatchEntry.ExportProviderParams.BatchNbr, document.BatchNbr));
                     });
                 }
                 else
@@ -339,12 +355,9 @@ namespace PX.Objects.ACH
         {
             if (!sender.ObjectsEqual<CABatch.tranDate>(e.Row, e.OldRow))
             {
-                foreach (CABatchDetail tran in this.Details.Select())
+                foreach (CABatchDetail detail in this.Details.Select())
                 {
-                    if (this.Details.Cache.GetStatus(tran) == PXEntryStatus.Notchanged)
-                    {
-                        this.Details.Cache.SetStatus(tran, PXEntryStatus.Updated);
-                    }
+                    this.Details.Cache.MarkUpdated(detail);
                 }
             }
         }
@@ -357,7 +370,7 @@ namespace PX.Objects.ACH
                 CashAccount acct = PXSelect<CashAccount, Where<CashAccount.cashAccountID, Equal<Required<CashAccount.cashAccountID>>>>.Select(this, aBatch.CashAccountID);
                 if (acct != null)
                 {
-                    return String.Format(CA.Messages.CABatchDefaultExportFilenameTemplate, aBatch.PaymentMethodID, acct.CashAccountCD, aBatch.TranDate.Value, aBatch.DateSeqNbr);
+                    return string.Format(CA.Messages.CABatchDefaultExportFilenameTemplate, aBatch.PaymentMethodID, acct.CashAccountCD, aBatch.TranDate.Value, aBatch.DateSeqNbr);
                 }
             }
             return string.Empty;
@@ -365,38 +378,44 @@ namespace PX.Objects.ACH
 
         public virtual void CalcDetailsTotal(ref decimal? aCuryTotal, ref decimal? aTotal)
         {
-            aCuryTotal = Decimal.Zero;
-            aTotal = Decimal.Zero;
-            foreach (PXResult<CABatchDetail, ARPayment> it in this.BatchPayments.Select())
+            aCuryTotal = 0m;
+            aTotal = 0m;
+            foreach (PXResult<CABatchDetail, ARPayment> item in this.BatchPayments.Select())
             {
-                ARPayment pmt = it;
-                if (!String.IsNullOrEmpty(pmt.RefNbr))
+                ARPayment payment = item;
+                if (!string.IsNullOrEmpty(payment.RefNbr))
                 {
-                    aCuryTotal += pmt.CuryOrigDocAmt;
-                    aTotal += pmt.OrigDocAmt;
+                    aCuryTotal += payment.CuryOrigDocAmt;
+                    aTotal += payment.OrigDocAmt;
                 }
             }
         }
         #endregion
 
         #region Static Methods
-        public static void ReleaseDoc(CABatch aDoc)
+        public static void ReleaseDoc(CABatch aDocument)
         {
-            if ((bool)aDoc.Released || (bool)aDoc.Hold)
+            if ((bool)aDocument.Released || (bool)aDocument.Hold)
+            {
                 throw new PXException(CA.Messages.CABatchStatusIsNotValidForProcessing);
-            ARBatchUpdate be = PXGraph.CreateInstance<ARBatchUpdate>();
-            CABatch doc = be.Document.Select(aDoc.BatchNbr);
-            be.Document.Current = doc;
-            if ((bool)doc.Released || (bool)doc.Hold)
+            }
+
+            ARBatchUpdate batchEntry = PXGraph.CreateInstance<ARBatchUpdate>();
+            CABatch document = batchEntry.Document.Select(aDocument.BatchNbr);
+            batchEntry.Document.Current = document;
+
+            if ((bool)document.Released || (bool)document.Hold)
+            {
                 throw new PXException(CA.Messages.CABatchStatusIsNotValidForProcessing);
+            }
 
             ARPayment voided = PXSelectReadonly2<ARPayment,
                             InnerJoin<CABatchDetail, On<CABatchDetail.origDocType, Equal<ARPayment.docType>,
                             And<CABatchDetail.origRefNbr, Equal<ARPayment.refNbr>,
                             And<CABatchDetail.origModule, Equal<GL.BatchModule.moduleAR>>>>>,
                             Where<CABatchDetail.batchNbr, Equal<Required<CABatch.batchNbr>>,
-                                And<ARPayment.voided, Equal<True>>>>.Select(be, doc.BatchNbr);
-            if (voided != null && String.IsNullOrEmpty(voided.RefNbr) == false)
+                                And<ARPayment.voided, Equal<True>>>>.Select(batchEntry, document.BatchNbr);
+            if (voided != null && string.IsNullOrEmpty(voided.RefNbr) == false)
             {
                 throw new PXException(CA.Messages.CABatchContainsVoidedPaymentsAndConnotBeReleased);
             }
@@ -407,30 +426,33 @@ namespace PX.Objects.ACH
                             And<CABatchDetail.origRefNbr, Equal<ARPayment.refNbr>,
                             And<CABatchDetail.origModule, Equal<GL.BatchModule.moduleAR>>>>>,
                             Where<CABatchDetail.batchNbr, Equal<Optional<CABatch.batchNbr>>,
-                                And<ARPayment.released, Equal<boolFalse>>>>(be);
-            foreach (ARPayment iPmt in selectUnreleased.Select(doc.BatchNbr))
+                                And<ARPayment.released, Equal<boolFalse>>>>(batchEntry);
+
+            foreach (ARPayment item in selectUnreleased.Select(document.BatchNbr))
             {
-                if (iPmt.Released != true)
+                if (item.Released != true)
                 {
-                    unreleasedList.Add(iPmt);
+                    unreleasedList.Add(item);
                 }
             }
+
             if (unreleasedList.Count > 0)
             {
                 ARDocumentRelease.ReleaseDoc(unreleasedList, true);
             }
 
             selectUnreleased.View.Clear();
-            ARPayment pmt = selectUnreleased.Select(doc.BatchNbr);
-            if (pmt != null)
+            ARPayment payment = selectUnreleased.Select(document.BatchNbr);
+            if (payment != null)
             {
                 throw new PXException(CA.Messages.CABatchContainsUnreleasedPaymentsAndCannotBeReleased);
             }
-            doc.Released = true;
-            doc.DateSeqNbr = CABatchEntry.GetNextDateSeqNbr(be, aDoc); //Nothing AP specific in this static function
-            be.RecalcTotals();
-            doc = be.Document.Update(doc);
-            be.Actions.PressSave();
+
+            document.Released = true;
+            document.DateSeqNbr = CABatchEntry.GetNextDateSeqNbr(batchEntry, aDocument); //Nothing AP specific in this static function
+            batchEntry.RecalcTotals();
+            document = batchEntry.Document.Update(document);
+            batchEntry.Actions.PressSave();
         }
         #endregion
 
@@ -444,19 +466,20 @@ namespace PX.Objects.ACH
                             And<CABatchDetail.origRefNbr, Equal<ARPayment.refNbr>,
                             And<CABatchDetail.origModule, Equal<GL.BatchModule.moduleAR>>>>>,
                             Where<CABatchDetail.batchNbr, Equal<Optional<CABatch.batchNbr>>>> ARPaymentList;
+
             public virtual void RecalcTotals()
             {
                 CABatch row = this.Document.Current;
                 if (row != null)
                 {
-                    row.DetailTotal = row.CuryDetailTotal = row.CuryTotal = row.Total = decimal.Zero;
-                    foreach (PXResult<ARPayment, CABatchDetail> it in this.ARPaymentList.Select())
+                    row.DetailTotal = row.CuryDetailTotal = row.Total = decimal.Zero;
+                    foreach (PXResult<ARPayment, CABatchDetail> item in this.ARPaymentList.Select())
                     {
-                        ARPayment pmt = it;
-                        if (!String.IsNullOrEmpty(pmt.RefNbr))
+                        ARPayment payment = item;
+                        if (!string.IsNullOrEmpty(payment.RefNbr))
                         {
-                            row.CuryDetailTotal += pmt.CuryOrigDocAmt;
-                            row.DetailTotal += pmt.OrigDocAmt;
+                            row.CuryDetailTotal += payment.CuryOrigDocAmt;
+                            row.DetailTotal += payment.OrigDocAmt;
                         }
                     }
 

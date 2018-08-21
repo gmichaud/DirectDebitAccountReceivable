@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections;
-using System.Text;
-using System.Web;
-using PX.Data;
-using PX.Objects.GL;
-using PX.Objects.CM;
-using PX.Objects.CA;
-using PX.Objects.CS;
-using PX.Objects.AP;
-//using Messages = PX.Objects.AP.Messages;
+﻿using PX.Data;
 using PX.Objects.AR;
+using PX.Objects.AR.MigrationMode;
+using PX.Objects.CA;
+using PX.Objects.CM;
+using PX.Objects.CS;
+using PX.Objects.GL;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace PX.Objects.ACH
 {
@@ -40,7 +37,7 @@ namespace PX.Objects.ACH
         }
 
         #region Setups
-        public PXSetup<ARSetup> ARSetup;
+        public ARSetupNoMigrationMode ARSetup;
         public CMSetupSelect CMSetup;
         public PXSetup<GL.Company> Company;
         public PXSetup<PaymentMethodAccount, Where<PaymentMethodAccount.cashAccountID, Equal<Current<ProcessPaymentFilter.payAccountID>>, And<PaymentMethodAccount.paymentMethodID, Equal<Current<ProcessPaymentFilter.payTypeID>>>>> cashaccountdetail;
@@ -82,19 +79,19 @@ namespace PX.Objects.ACH
             }
 
             foreach (PXResult<ARPayment, Customer, PaymentMethod, CABatchDetail> doc in PXSelectJoin<ARPayment,
-                InnerJoin<Customer, On<Customer.bAccountID, Equal<ARPayment.customerID>>,
+                InnerJoinSingleTable<Customer, On<Customer.bAccountID, Equal<ARPayment.customerID>>,
                 InnerJoin<PaymentMethod, On<PaymentMethod.paymentMethodID, Equal<ARPayment.paymentMethodID>>,
-                LeftJoin<CABatchDetail, On<CABatchDetail.origModule, Equal<GL.BatchModule.moduleAR>,
+                LeftJoin<CABatchDetail, On<CABatchDetail.origModule, Equal<BatchModule.moduleAR>,
                         And<CABatchDetail.origDocType, Equal<ARPayment.docType>,
                         And<CABatchDetail.origRefNbr, Equal<ARPayment.refNbr>>>>>>>,
-                Where<ARPayment.docType, NotEqual<ARDocType.prepayment>, And<ARPayment.docType, NotEqual<ARDocType.refund>,
-                And<ARPayment.cashAccountID, Equal<Current<ProcessPaymentFilter.payAccountID>>,
-                And<ARPayment.paymentMethodID, Equal<Current<ProcessPaymentFilter.payTypeID>>,
-                And2<Match<Customer, Current<AccessInfo.userName>>,
-                And<Where<PaymentMethodExt.aRCreateBatchPayment, Equal<True>,
-                        And<ARPayment.docType, NotEqual<ARDocType.voidPayment>,          
-                        And<CABatchDetail.batchNbr, IsNull,
-                        And<ARPayment.released, Equal<False>>>>>>>>>>>>.Select(this))
+                Where2<Where<ARPayment.status, Equal<ARDocStatus.balanced>,
+                    And<CABatchDetail.batchNbr, IsNull,
+                    And<ARPayment.cashAccountID, Equal<Current<ProcessPaymentFilter.payAccountID>>,
+                    And<ARPayment.paymentMethodID, Equal<Current<ProcessPaymentFilter.payTypeID>>,
+                    And<Match<Customer, Current<AccessInfo.userName>>>>>>>,
+                    And<Where<ARPayment.docType, Equal<ARDocType.payment>,
+                        Or<ARPayment.docType, Equal<ARDocType.prepayment>>>>>>
+                            .Select(this))
             {
                 yield return new PXResult<ARPayment, Customer>(doc, doc);
                 if (_copies.ContainsKey((ARPayment)doc))
@@ -145,13 +142,10 @@ namespace PX.Objects.ACH
 
         public static CABatch CreateBatchPayment(List<ARPayment> list, ProcessPaymentFilter filter)
         {
-            CABatch result = new CABatch();
-
+            ARBatchEntry be = PXGraph.CreateInstance<ARBatchEntry>();
+            var result = be.Document.Insert(new CABatch());
             var resultExt = PXCache<CABatch>.GetExtension<CABatchExt>(result);
             resultExt.BatchModule = GL.BatchModule.AR;
-
-            ARBatchEntry be = PXGraph.CreateInstance<ARBatchEntry>();
-            result = be.Document.Insert(result);
             be.Document.Current = result;
             CABatch copy = (CABatch)be.Document.Cache.CreateCopy(result);
 
@@ -161,9 +155,13 @@ namespace PX.Objects.ACH
             foreach (ARPayment iPmt in list)
             {
                 if (iPmt.CashAccountID != result.CashAccountID || iPmt.PaymentMethodID != iPmt.PaymentMethodID)
+                {
                     throw new PXException(AP.Messages.APPaymentDoesNotMatchCABatchByAccountOrPaymentType);
+                }
                 if (String.IsNullOrEmpty(iPmt.ExtRefNbr) && string.IsNullOrEmpty(filter.NextCheckNbr))
+                {
                     throw new PXException(Messages.NextCheckNumberIsRequiredForProcessing);
+                }
                 CABatchDetail detail = be.AddPayment(iPmt);
             }
             be.Save.Press();
@@ -208,7 +206,7 @@ namespace PX.Objects.ACH
                     throw new PXOperationCompletedWithErrorException(Messages.ARPaymentsAreAddedToTheBatchButWasNotUpdatedCorrectly, batch.BatchNbr);
                 }
                 RedirectToResultWithCreateBatch(batch);
-                
+
             }
         }
 
@@ -297,8 +295,8 @@ namespace PX.Objects.ACH
 
             ProcessPaymentFilter filter = Filter.Current;
             PaymentMethod pt = paymenttype.Current;
-            ARPaymentList.SetProcessTooltip(AP.Messages.ProcessSelectedRecordsTooltip);
-            ARPaymentList.SetProcessAllTooltip(AP.Messages.ProcessAllRecordsTooltip);
+            ARPaymentList.SetProcessTooltip(AR.Messages.Process);
+            ARPaymentList.SetProcessAllTooltip(AR.Messages.ProcessAll);
             ARPaymentList.SetProcessDelegate(
                 delegate (List<ARPayment> list)
                 {
@@ -384,7 +382,7 @@ namespace PX.Objects.ACH
                           Where<PaymentMethod.useForAR, Equal<True>,
                             And<PaymentMethod.paymentType, NotEqual<PaymentMethodType.creditCard>,
                             And<PaymentMethodExt.aRCreateBatchPayment, Equal<boolTrue>,
-                            And<PaymentMethod.isActive, Equal<boolTrue>>>>>>))]
+                            And<PaymentMethod.isActive, Equal<True>>>>>>))]
         public virtual String PayTypeID
         {
             get
@@ -539,7 +537,7 @@ namespace PX.Objects.ACH
         }
         protected Int64? _CuryInfoID;
         [PXDBLong()]
-        [CurrencyInfo(ModuleCode = "AR")]
+        [CurrencyInfo(ModuleCode = BatchModule.AR)]
         public virtual Int64? CuryInfoID
         {
             get
