@@ -355,9 +355,12 @@ namespace PX.Objects.ACH
         {
             if (!sender.ObjectsEqual<CABatch.tranDate>(e.Row, e.OldRow))
             {
-                foreach (CABatchDetail detail in this.Details.Select())
+                foreach (CABatchDetail tran in this.Details.Select())
                 {
-                    this.Details.Cache.MarkUpdated(detail);
+                    if (this.Details.Cache.GetStatus(tran) == PXEntryStatus.Notchanged)
+                    {
+                        this.Details.Cache.SetStatus(tran, PXEntryStatus.Updated);
+                    }
                 }
             }
         }
